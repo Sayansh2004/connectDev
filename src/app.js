@@ -25,8 +25,35 @@ app.post("/users/signup",async(req,res)=>{
 
 });
 
-app.get("/feed",(req,res)=>{
-    
+app.get("/feed",async(req,res)=>{
+    try{
+          const users=await User.find({});
+          res.status(200).send(users);
+    }catch(err){
+        res.status(404).send("users not found"+err);
+    }
+})
+
+app.patch("/user/:userId",async(req,res)=>{
+   
+    try{
+         const userId=req.params?.userId;
+    const data=req.body;
+    const allowed_updates=["photourl","about","gender","age","skills"];
+
+    const isUpdateAllowed=Object.keys(data).every((k)=>allowed_updates.includes(k));
+
+    if(!isUpdateAllowed){
+        throw new Error ("update not allowed")
+    }
+    if(data?.skills.length>10){
+        throw new Error("Skills cannot be more than 10");
+    }
+     const user =await User.findByIdAndUpdate({_id:userId},data,{runValidators:true});
+     res.send("user updated Successfully");
+    }catch(err){
+        res.status(400).send("Update failed : "+err.message);
+    }
 })
 
 app.listen(PORT, () => {

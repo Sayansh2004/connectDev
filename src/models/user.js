@@ -4,17 +4,50 @@ const mongoose=require("mongoose");
 const userSchema=new mongoose.Schema({
     firstName:{
         type:String,
-        required:true
+        required:true,
+        minLength:4,
+        maxLength:50
     },
     lastName:{
         type:String
     },
     emailId:{
-        type:String
+        type:String,
+        required:true,
+        unique:true,
+        lowercase:true,
+        trim:true
     },
     password:{
+        type:String,
+        required:true
+    },
+    age:{
+        type:Number,
+        min:18    // in case of number we use min but in case of string we use minLength
+    },
+    gender:{
+        type:String,
+        // we can do enum:["male","female","others"] this is quite simpler way but we can write our own custom logic  for validation as well 
+        validate(val){
+            if(!["male","female","others"].includes(val)){
+                throw new Error("Gender data is not valid");
+            }
+        } 
+    },
+    photoUrl:{
+        type:String,
+        default:"https://plus.unsplash.com/premium_vector-1683141132250-12daa3bd85cf?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    },
+    shortDesc:{
         type:String
+    },
+    about:{
+        type:String
+    },
+    skills:{
+        type:[String]
     }
-})
+},{timestamps:true})
 
 module.exports=mongoose.model("User",userSchema);
