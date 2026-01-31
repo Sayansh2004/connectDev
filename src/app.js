@@ -6,16 +6,31 @@ dotenv.config(); // Load env variables first
 const express = require("express");
 const connectDb = require("./config/db.js"); // Import the function
 const User=require("./models/user.js");
-
+const {validateSignupData}=require("./utils/validation.js");
+const bcrypt=require("bcrypt");
 const app = express();
 const PORT = 3000;
 
 // Connect to Database (This is the ONLY place this should run)
 connectDb();
 app.use(express.json());
-app.post("/users/signup",async(req,res)=>{
-    const user=new User(req.body);
+app.post("/signup",async(req,res)=>{
     try{ 
+        //validating the data
+
+        validateSignupData(req);
+
+        // Hashing the password
+        const {firstName,lastName,emailId,password}=req.body;
+
+        const hashedPassword=await bcrypt.hash(password,10);
+
+        const user=new User({
+            firstName,
+            lastName,
+            emailId,
+            password:hashedPassword
+        });
         await user.save();
         res.send("user signup successful");
 
@@ -24,6 +39,36 @@ app.post("/users/signup",async(req,res)=>{
     }
 
 });
+
+app.post("/login",async(req,res)=>{
+    try{
+        const {emailId,password}=req.body;
+
+        if(!validator.isEmail(emailId)){
+            throw new Error("Please enter a valid email");
+        }
+        if(!password){
+            throw new Error("No password is provided");
+        }
+     
+         const user=await User.findOne({emailId});
+         if(!user){
+            throw new Error("Invalid credentials");
+         }
+         
+        const isPasswordValid=await bcrypt.compare(password,user.password);
+
+        if(isPasswordValid){
+            res.status(200).send("Login successful");
+        }else{
+            throw new Error("password is not correct");
+        }
+
+
+    }catch(err){
+        res.status(401).send("Failed to login"+err.message);
+    }
+})
 
 app.get("/feed",async(req,res)=>{
     try{
