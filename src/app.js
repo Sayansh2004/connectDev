@@ -23,6 +23,10 @@ app.post("/users/signup",async(req,res)=>{
         res.status(400).send("Some error occured while saving the data to database",err.message);
     }
 
+});
+
+app.get("/feed",(req,res)=>{
+    
 })
 
 app.listen(PORT, () => {
