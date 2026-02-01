@@ -1,10 +1,10 @@
-// src/app.js
+
 const dns = require('node:dns');
 dns.setServers(['8.8.8.8', '8.8.4.4']);
 const dotenv=require("dotenv");
-dotenv.config(); // Load env variables first
+dotenv.config(); 
 const express = require("express");
-const connectDb = require("./config/db.js"); // Import the function
+const connectDb = require("./config/db.js"); 
 const User=require("./models/user.js");
 const {validateSignupData}=require("./utils/validation.js");
 const bcrypt=require("bcrypt");
@@ -13,8 +13,9 @@ const PORT = 3000;
 const cookieParser=require("cookie-parser");
 const jwt=require("jsonwebtoken");
 const validator=require("validator");
+const {userAuth}=require("./middlewares/auth.js");
 
-// Connect to Database (This is the ONLY place this should run)
+
 connectDb();
 app.use(express.json());
 app.use(cookieParser());
@@ -64,9 +65,9 @@ app.post("/login",async(req,res)=>{
 
         if(isPasswordValid){
             
-        const token=await jwt.sign({_id:user._id},process.env.JWT_SECRET);
+        const token=await jwt.sign({_id:user._id},process.env.JWT_SECRET,{expiresIn:"1d"});
 
-        res.cookie("token",token);
+        res.cookie("token",token,{expires:new Date.now()+8*3600000});
             res.status(200).send("Login successful");
         }else{
             throw new Error("password is not correct");
@@ -78,22 +79,9 @@ app.post("/login",async(req,res)=>{
     }
 })
 
-app.get("/profile",async(req,res)=>{
+app.get("/profile",userAuth,async(req,res)=>{
       try{
-        const cookies=req.cookies;
-        const {token}=cookies;
-        
-        if(!token){
-            throw new Error("Invalid token");
-        }
-
-        const decodedMessage=await jwt.verify(token,process.env.JWT_SECRET);
-
-        const {_id}=decodedMessage;
-        const user=await User.findById(_id);
-        if(!user){
-            throw new Error("User not found");
-        }
+        const user=req.user;     // this user is coming since I have attached the user already by MW.
         res.send("cookie read successfully");
 
       }catch(err){
@@ -130,6 +118,17 @@ app.patch("/user/:userId",async(req,res)=>{
      res.send("user updated Successfully");
     }catch(err){
         res.status(400).send("Update failed : "+err.message);
+    }
+})
+
+app.post("/sendConnectionRequest",userAuth,async(req,res)=>{
+    try{
+        // Now since I have used MW therefore this API is secured and only verified user can send connection request.
+        // and not only this I can also get the user since I have attatched that in MW.
+        console.log("sending conncetion request");
+
+    }catch(err){
+        res.status(400).send("Some error occured : "+err.message);
     }
 })
 
