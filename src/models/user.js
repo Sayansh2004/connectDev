@@ -1,5 +1,6 @@
 const mongoose=require("mongoose");
 const validator=require("validator");
+const bcrypt=require("bcrypt");
 
 const userSchema=new mongoose.Schema({
     firstName:{
@@ -64,5 +65,22 @@ const userSchema=new mongoose.Schema({
         type:[String]
     }
 },{timestamps:true})
+
+// we can write methods directly here which are needed to performed for each user (No use of Arrow Functions is preferred)
+userSchema.methods.getJWT=async function (){
+
+        const user=this;
+
+    const token = await jwt.sign({_id:user.id},process.env.JWT_SECRET,{expiresIn:"7d"})
+    return token;
+
+}
+
+userShema.methods.validatePassword=async function(password){
+    const user=this;
+
+    const isPasswordValid=await bcrypt.compare(password,this.password);
+
+}
 
 module.exports=mongoose.model("User",userSchema);
