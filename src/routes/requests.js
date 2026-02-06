@@ -18,7 +18,7 @@ requestRouter.post("/request/send/:status/:touserId",userAuth,async(req,res)=>{
 
        const allowedStatus=["ignored","interested"];
 
-       if(allowedStatus.includes(status)){
+       if(!allowedStatus.includes(status)){
         return res.status(400).json({success:false,message:"Invalid status type : "+status});
        }
 
@@ -50,7 +50,8 @@ requestRouter.post("/request/send/:status/:touserId",userAuth,async(req,res)=>{
 
        const data=await connectionRequest.save();
 
-       res.status(200).json({success:true,message:"connection request sent successfully",data});
+       res.status(200).json({success:true,message:req.user.firstName+ " is "+ status+ " in "+toUser.firstName,
+        data});
        }else{
 
         throw new Error("You cannot send request to yourself");
