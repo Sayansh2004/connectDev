@@ -63,5 +63,43 @@ requestRouter.post("/request/send/:status/:touserId",userAuth,async(req,res)=>{
     }
 });
 
+requestRouter.post("/request/review/:status/:requestId",userAuth,async(req,res)=>{
+    try{
+        
+        const {status,requestId}=req.params;
+        const allowedStatus=["accepted","rejected"];
+        if(!allowedStatus.includes(status)){
+            return res.status(400).json({success:false,message:"Invalid status type"});
+        }
+
+        // const toUser=await User.findById(requestId);
+        // if(!toUser){
+        //     return res.status(400).json({success:false,message:"No such user exists"});
+        // } 
+
+        // this is wrong because the request id is the id of document here not any user's id.
+        const loggedInUser=req.user;
+
+        const connectionRequest=await ConnectionRequest.findOne({
+            _id:requestId,
+             toUserId:loggedInUser._id,
+             status:"interested"
+        })
+
+        if(!connectionRequest){
+            return  res.status(400).json({success:false,message:"Connection request not found"});
+        }
+
+        connectionRequest.status=status;
+
+        const data=await connectionRequest.save();
+
+        return res.status(200).json({success:true,message:"connection request : "+status,data});
+
+    }catch(err){
+        return res.status(400).json({success:false,message:err.message});
+    }
+})
+
 
 module.exports=requestRouter;
