@@ -23,8 +23,8 @@ requestRouter.post("/request/send/:status/:touserId",userAuth,async(req,res)=>{
        }
 
 
-        const touser=await User.findById(toUserId);
-        if(!touser){
+        const toUser=await User.findById(toUserId);
+        if(!toUser){
             throw new Error("user does not exists");
         }
 
@@ -61,6 +61,7 @@ requestRouter.post("/request/send/:status/:touserId",userAuth,async(req,res)=>{
     }catch(err){
         res.status(400).send("Some error occured : "+err.message);
     }
-})
+});
+
 
 module.exports=requestRouter;
