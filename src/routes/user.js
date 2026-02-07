@@ -47,6 +47,10 @@ userRouter.get("/user/feed",userAuth,async(req,res)=>{
     try{
         const loggedInUser=req.user;
 
+        const page=parseInt(req.query.page) || 1;
+        let limit=parseInt(req.query.limit)||10;
+        limit=limit>50?50:limit;
+
          //connection request which is sent or recieved
         const allConncections=await ConnectionRequest.find({
           $or:[
@@ -59,6 +63,8 @@ userRouter.get("/user/feed",userAuth,async(req,res)=>{
 
         const hiddenUsersFromFeed=new Set();
 
+         hiddenUsersFromFeed.add(loggedInUser._id.toString());
+
         allConncections.forEach(req=>{
             hiddenUsersFromFeed.add(req.fromUserId.toString());
             hiddenUsersFromFeed.add(req.toUserId.toString());
@@ -70,7 +76,7 @@ userRouter.get("/user/feed",userAuth,async(req,res)=>{
                 {_id:{$ne:loggedInUser._id}}
             ]
             
-        }).select("-password -email");
+        }).select("-password -email").limit(limit).skip((page-1)*limit);
 
         return res.status(200).send({success:true,users});
 
