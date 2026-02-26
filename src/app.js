@@ -6,6 +6,7 @@ dotenv.config();
 const express = require("express");
 const connectDb = require("./config/db.js"); 
 const User=require("./models/user.js");
+const cors=require("cors");
 
 const app = express();
 const PORT = 3000;
@@ -19,7 +20,10 @@ const userRouter=require("./routes/user.js");
 connectDb();
 app.use(express.json());
 app.use(cookieParser());
-
+app.use(cors({
+    origin:"http://localhost:5173",
+    credentials:true
+}))
 
 
 

@@ -55,21 +55,22 @@ authRouter.post("/login",async(req,res)=>{
         // const token=await jwt.sign({_id:user._id},process.env.JWT_SECRET,{expiresIn:"1d"});
 
         res.cookie("token",token,{expires: new Date(Date.now() + 8 * 3600000)});
-            res.status(200).send("Login successful");
+            res.status(200).json({success:true,message:"Login successful"});
         }else{
             throw new Error("password is not correct");
         }
 
 
     }catch(err){
-        res.status(401).send("Failed to login : "+err.message);
+        console.log(err.message);
+        res.status(401).json({success:false,message:"Failed to login"});
     }
 })
 
 
 authRouter.post("/logout",(req,res)=>{
     res.clearCookie("token");
-    res.status(200).send("Logged out successfully");
+    res.status(200).json({success:true,message:"Logged out successfully"});
 })
 
 module.exports=authRouter;
