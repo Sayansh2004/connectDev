@@ -36,7 +36,8 @@ const userSchema=new mongoose.Schema({
     },
     age:{
         type:Number,
-        min:18    // in case of number we use min but in case of string we use minLength
+        min:18 ,
+        default:18   // in case of number we use min but in case of string we use minLength
     },
     gender:{
         type:String,
@@ -60,7 +61,8 @@ const userSchema=new mongoose.Schema({
         type:String
     },
     about:{
-        type:String
+        type:String,
+        default:"Hey There!! I am passionate software dev just joined dev Connect and I am a problem solver . Let'Catch"
     },
     skills:{
         type:[String]

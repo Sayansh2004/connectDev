@@ -26,7 +26,9 @@ const connectionRequestSchema=new mongoose.Schema({
 },{timestamps:true})
 
 //creating a compound index such that search operation becomes faster when DB is scaled
-connectionRequestSchema.index({fromUserId:1},{toUserId:1})
+connectionRequestSchema.index(
+  { fromUserId: 1, toUserId: 1 }
+);
 
 // connectionRequestSchema.pre("save",function(){  // this function does not meant to be an arrow function
 //     const connectionRequest=this;

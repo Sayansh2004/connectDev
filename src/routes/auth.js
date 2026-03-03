@@ -23,10 +23,11 @@ authRouter.post("/signup",async(req,res)=>{
             password:hashedPassword
         });
         await user.save();
-        res.send("user signup successful");
+       return  res.status(200).json({success:true,message:"user signup successful"});
 
     }catch(err){
-        res.status(400).send("Some error occured while saving the data to database : "+err.message);
+        console.error(err.message);
+        res.status(400).json({success:false,message:"failed to signup"});
     }
 
 });
@@ -55,7 +56,16 @@ authRouter.post("/login",async(req,res)=>{
         // const token=await jwt.sign({_id:user._id},process.env.JWT_SECRET,{expiresIn:"1d"});
 
         res.cookie("token",token,{expires: new Date(Date.now() + 8 * 3600000)});
-            res.status(200).json({success:true,message:"Login successful"});
+            res.status(200).json({success:true,message:"Login successful",data:
+            {_id: user._id,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    emailId: user.emailId,
+    photoUrl: user.photoUrl,
+    age: user.age,
+    about: user.about,
+    skills: user.skills,
+    gender: user.gender}});
         }else{
             throw new Error("password is not correct");
         }

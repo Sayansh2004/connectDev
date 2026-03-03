@@ -15,7 +15,7 @@ userRouter.get("/user/requests/recieved",userAuth,async(req,res)=>{
 
 
 
-       return res.status(200).json({success:true,message:"pending requests fetched successfully"});
+       return res.status(200).json({success:true,message:"pending requests fetched successfully",requests:connectionRequests});
 
     }catch(err){
         return res.status(400).json({success:false,message:err.message});
@@ -38,7 +38,8 @@ userRouter.get("/user/connections",userAuth,async(req,res)=>{
         return res.status(200).json({success:true,trueConnections});
 
     }catch(err){
-        return res.status(400).json({success:false,message:err.message});
+        console.error(err.message);
+        return res.status(400).json({success:false,message:"failed to fetch connections"});
     }
 });
 

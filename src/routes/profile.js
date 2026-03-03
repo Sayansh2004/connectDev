@@ -28,12 +28,13 @@ profileRouter.patch("/profile/edit",userAuth,async(req,res)=>{
 
     Object.keys(req.body).forEach((key)=>(loggedinUser[key]=req.body[key]));
 
-    res.status(200).send(`${loggedinUser.firstName} , your profile edited successfully`);
-
     await loggedinUser.save();
+
+    res.status(200).json({success:true,message:`${loggedinUser.firstName} , your profile edited successfully`});
   
   }catch(err){
-    res.status(400).send("Error occured while editing the profile  : "+err.message);
+    console.error(err.message);
+    res.status(400).json({success:false,message:"failed to update profile data"});
   }
 })
 
