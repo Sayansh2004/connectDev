@@ -7,6 +7,7 @@ const express = require("express");
 const connectDb = require("./config/db.js"); 
 const User=require("./models/user.js");
 const cors=require("cors");
+const http=require("http");
 
 const app = express();
 const PORT = 3000;
@@ -16,6 +17,12 @@ const authRouter=require("./routes/auth.js");
 const profileRouter=require("./routes/profile.js");
 const requestRouter=require("./routes/requests.js");
 const userRouter=require("./routes/user.js");
+const initialiseSocket = require('./utils/socket.js');
+
+
+const server=http.createServer(app);
+initialiseSocket(server);
+
 
 connectDb();
 app.use(express.json());
@@ -66,6 +73,6 @@ app.patch("/user/:userId",async(req,res)=>{
 
 
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Listening to port number : ${PORT}`)
 });

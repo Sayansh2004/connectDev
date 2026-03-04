@@ -10,7 +10,7 @@ userRouter.get("/user/requests/recieved",userAuth,async(req,res)=>{
         const loggedInUser=req.user;
         const connectionRequests=await ConnectionRequest.find({
             toUserId:loggedInUser._id,
-            status:"pending"
+            status:"interested"
         }).populate("fromUserId",["firstName","lastName","photoUrl","gender","about","skills"]); // we can pass on the array based on which we want to filter the information.
 
 
@@ -22,25 +22,63 @@ userRouter.get("/user/requests/recieved",userAuth,async(req,res)=>{
     }
 });
 
-userRouter.get("/user/connections",userAuth,async(req,res)=>{
-    try{
-        const loggedInUser=req.user;
+// userRouter.get("/user/connections",userAuth,async(req,res)=>{
+//     try{
+//         const loggedInUser=req.user;
 
-        const trueConnections=await ConnectionRequest.find({
-           $or:[
-            {toUserId:loggedInUser._id,status:"accepted"},
-            {fromUserId:loggedInUser._id,status:"accepted"}
-           ]
-        }).populate("fromUserId",["firstName","lastName","photoUrl","gender","about","skills"])
-        .populate("toUserId",["firstName","lastName","photoUrl","gender","about","skills"])
-        ;
+//         const trueConnections=await ConnectionRequest.find({
+//            $or:[
+//             {toUserId:loggedInUser._id,status:"accepted"},
+//             {fromUserId:loggedInUser._id,status:"accepted"}
+//            ]
+//         }).populate("fromUserId",["firstName","lastName","photoUrl","gender","about","skills"])
+//         .populate("toUserId",["firstName","lastName","photoUrl","gender","about","skills"])
+//         ;
 
-        return res.status(200).json({success:true,trueConnections});
+//         return res.status(200).json({success:true,trueConnections});
 
-    }catch(err){
-        console.error(err.message);
-        return res.status(400).json({success:false,message:"failed to fetch connections"});
-    }
+//     }catch(err){
+//         console.error(err.message);
+//         return res.status(400).json({success:false,message:"failed to fetch connections"});
+//     }
+// });
+
+userRouter.get("/user/connections", userAuth, async (req, res) => {
+  try {
+
+    const loggedInUser = req.user;
+
+    const connections = await ConnectionRequest.find({
+      $or: [
+        { toUserId: loggedInUser._id, status: "accepted" },
+        { fromUserId: loggedInUser._id, status: "accepted" }
+      ]
+    })
+    .populate("fromUserId", ["firstName","lastName","photoUrl","gender","about","skills"])
+    .populate("toUserId", ["firstName","lastName","photoUrl","gender","about","skills"]);
+
+    const trueConnections = connections.map(conn => {
+
+      if (conn.fromUserId._id.toString() === loggedInUser._id.toString()) {
+        return conn.toUserId;
+      } else {
+        return conn.fromUserId;
+      }
+
+    });
+
+    return res.status(200).json({
+      success: true,
+      trueConnections
+    });
+
+  } catch (err) {
+    console.error(err.message);
+    return res.status(400).json({
+      success: false,
+      message: "failed to fetch connections"
+    });
+  }
 });
 
 
