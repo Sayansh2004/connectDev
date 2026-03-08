@@ -17,7 +17,7 @@ requestRouter.post("/request/send/:status/:touserId",userAuth,async(req,res)=>{
 
 
        const allowedStatus=["ignored","interested"];
-
+          
        if(!allowedStatus.includes(status)){
         return res.status(400).json({success:false,message:"Invalid status type : "+status});
        }
